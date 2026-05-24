@@ -1,1 +1,13 @@
-
+langchain
+langchain-community
+langchain-openai
+chromadb
+sentence-transformers
+pypdf
+pandas
+fastapi
+uvicorn
+python-multipart
+pydantic
+huggingface-hub
+anthropic
