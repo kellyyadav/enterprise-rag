@@ -1,6 +1,5 @@
 langchain
 langchain-community
-langchain-openai
 chromadb
 sentence-transformers
 pypdf
@@ -10,4 +9,4 @@ uvicorn
 python-multipart
 pydantic
 huggingface-hub
-anthropic
+groq
