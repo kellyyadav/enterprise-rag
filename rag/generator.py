@@ -1,5 +1,7 @@
-# rag/generator.py
-# Uses a simple template — swap with OpenAI/Anthropic API for production
+import os
+from groq import Groq
+
+client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 def build_prompt(query: str, context_docs: list, user_id: str) -> str:
     context = "\n\n---\n".join(
@@ -19,26 +21,29 @@ QUESTION: {query}
 
 ANSWER (cite sources):"""
 
+
 def generate_answer(query: str, context_docs: list, user_id: str,
                     llm_client=None) -> dict:
     if not context_docs:
         return {
-            "answer": "❌ Access denied or no relevant data found for your query.",
+            "answer": "❌ Access denied or no relevant data found.",
             "sources": [],
             "user_id": user_id
         }
 
     prompt = build_prompt(query, context_docs, user_id)
 
-    if llm_client:
-        # e.g. OpenAI / Anthropic
-        answer = llm_client(prompt)
-    else:
-        # Fallback: return top context chunk as answer (demo mode)
-        top = context_docs[0]
-        answer = (f"Based on {top.metadata['source']}:\n"
-                  f"{top.page_content[:400]}...\n\n"
-                  f"(Connect an LLM API for full generation)")
+    # ✅ Groq API call
+    response = client.chat.completions.create(
+        model="llama3-8b-8192",
+        messages=[{"role": "user", "content": prompt}]
+    )
 
+    answer = response.choices[0].message.content
     sources = list({d.metadata["source"] for d in context_docs})
-    return {"answer": answer, "sources": sources, "user_id": user_id}
+
+    return {
+        "answer": answer,
+        "sources": sources,
+        "user_id": user_id
+    }
